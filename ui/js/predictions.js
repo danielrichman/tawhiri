@@ -86,7 +86,6 @@ function Prediction(predData) {
 
             // all responses received
             _this.progressBar.hide();
-            //console.log(currentTimeouts);
             map.centerMapToBounds();
             map.hourlySlider.redraw();
         }

@@ -8,11 +8,11 @@ requestStatus = {
 
 // Global objects
 
-// A request is a single request to the server for a path; a new Path is created
+// A prediction is a single request to the server; a new Path is created
 // and plotted once a request has completed. We keep the launch time on the
-// Request since we need to refer to it later (the launch time inside reqParams
+// Prediction since we need to refer to it later (the launch time inside reqParams
 // has been mangled).
-function Request(reqParams, launchtime, callback) {
+function Prediction(reqParams, launchtime, callback) {
     var _this = this;
     this.api_url = '/api/v1/';
     this.statusPollInterval = 1000; //ms
@@ -44,15 +44,13 @@ function Request(reqParams, launchtime, callback) {
     };
 }
 
-// A prediction is a collection of "requests": there may be multiple requests for one
-// prediction if the user has asked for multiple "hourly" predictions.
-function Prediction(predData) {
+function PredictionCollection(predData) {
     var _this = this;
     this.predData = predData;
     this.requests = [];
     this.paths = {}; // time value: path
     this.selectedPathLaunchtime = null;
-    this.runningRequests = 0;
+    this.runningPredictions = 0;
     this.totalResponsesExpected = 0;
     this.progressBar = new ProgressBar($('#progress-bar-wrapper'));
 
@@ -61,23 +59,23 @@ function Prediction(predData) {
         _this.progressBar.set(0);
     };
 
-    this.onRequestUpdate = function(request) {
+    this.onPredictionUpdate = function(request) {
         switch (request.status) {
             case requestStatus.FINISHED:
                 // success, make a path
-                _this.runningRequests--;
+                _this.runningPredictions--;
                 // _this.paths[request.launchtime] = new Path(request);
                 // map.hourlySlider.registerTime(request.launchtime);
                 break;
             case requestStatus.FAILED:
-                notifications.error('Request failed.');
-                _this.runningRequests--;
+                notifications.error('Prediction failed.');
+                _this.runningPredictions--;
                 break;
         }
 
-        _this.progressBar.set(100 * (_this.totalResponsesExpected - _this.runningRequests) / _this.totalResponsesExpected);
+        _this.progressBar.set(100 * (_this.totalResponsesExpected - _this.runningPredictions) / _this.totalResponsesExpected);
 
-        if (_this.runningRequests === 0) {
+        if (_this.runningPredictions === 0) {
             for (var j = 0; j < _this.requests.length; j++) {
                 var r = _this.requests[j];
                 _this.paths[r.launchtime] = new Path(r);
@@ -91,10 +89,10 @@ function Prediction(predData) {
         }
 
     };
-    this.addRequest = function(predData, launchTime) {
-        var request = new Request(predData, launchTime, _this.onRequestUpdate);
+    this.addPrediction = function(predData, launchTime) {
+        var request = new Prediction(predData, launchTime, _this.onPredictionUpdate);
         _this.requests.push(request);
-        _this.runningRequests++;
+        _this.runningPredictions++;
         _this.totalResponsesExpected++;
         request.submit();
     };

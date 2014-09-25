@@ -170,7 +170,7 @@ function Map($wrapper) {
     this.canvas = this.$canvas[0];
     this.markers = [];
     this.mapBounds = [];
-    this.predictions = [];
+    this.prediction_sets = [];
     this.hourlySlider = new HourlySlider();
     this.currentHourlyLaunchtime = null;
     this.isGpsTracking = false;
@@ -309,8 +309,8 @@ function Map($wrapper) {
             closeAutoComplete();
         });
     };
-    this.addPrediction = function(prediction) {
-        _this.predictions.push(prediction);
+    this.addPredictionSet = function(ps) {
+        _this.prediction_sets.push(ps);
     };
     this.toggleGpsTracker = function() {
         if (_this.isGpsTracking) {
@@ -461,11 +461,11 @@ function Map($wrapper) {
     };
     this.removeAllPredictions = function() {
         console.log('deleting all previous paths');
-        $.each(_this.predictions, function(key, prediction) {
-            prediction.remove();
+        $.each(_this.prediction_sets, function(key, ps) {
+            ps.remove();
         });
-        delete _this.predictions;
-        _this.predictions = [];
+        delete _this.prediction_sets;
+        _this.prediction_sets = [];
     };
     this.placeMarker = function(latLng) {
         _this.removeAllMarkers();
@@ -486,7 +486,7 @@ function Map($wrapper) {
         //console.log(value);
         try {
             var date = new Date(launchtime);
-            var path = _this.predictions[0].paths[launchtime].polyCenter.getPath(); // this should probably be abstracted slightly
+            var path = _this.prediction_sets[0].paths[launchtime].polyCenter.getPath(); // this should probably be abstracted slightly
             var len = path.getLength();
             var launch_latlng = path.getAt(0);
             var landing_latlng = path.getAt(len - 1);
@@ -503,8 +503,8 @@ function Map($wrapper) {
         //console.log(event);
         if (launchtime !== _this.currentHourlyLaunchtime) {
             _this.currentHourlyLaunchtime = launchtime;
-            $.each(_this.predictions, function(index, prediction) {
-                prediction.selectPathByTime(launchtime);
+            $.each(_this.prediction_sets, function(index, ps) {
+                ps.selectPathByTime(launchtime);
             });
         }
     };
@@ -693,13 +693,13 @@ function Form($wrapper) {
         map.reset();
         notifications.closeAllNotifications();
 
-        var prediction = new Prediction();
-        map.addPrediction(prediction);
+        var prediction_set = new PredictionCollection();
+        map.addPredictionSet(prediction_set);
         for (var h = 0; h < hourly; h++) { // < so that we don't add additional hours
             var predData = $.extend({}, predData);
             var d = new Date(launchDatetime.getTime() + (h * 60 * 60 * 1000)); // add h hours
             predData.launch_datetime = d.toISOString();
-            prediction.addRequest(predData, d.getTime());
+            prediction_set.addPrediction(predData, d.getTime());
         }
         _this.close();
     };

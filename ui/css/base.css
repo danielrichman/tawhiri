@@ -136,6 +136,12 @@ body {
     display: none;
 }
 
+#progress-bar-wrapper .progress-bar {
+    /* predictions complete so quickly, the easing can't keep up */
+    -webkit-transition: none;
+    transition: none;
+}
+
 .progress {
     width: 500px;
     margin: auto;

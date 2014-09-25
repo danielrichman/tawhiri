@@ -52,6 +52,9 @@ body {
 
 #prediction-form {
     overflow-x: hidden;
+
+    /* Some extra space for when the last units dropdown opens */
+    padding-bottom: 20px;
 }
 
 .tall {

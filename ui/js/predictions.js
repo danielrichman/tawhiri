@@ -58,7 +58,7 @@ function Prediction(predData) {
 
     this.init = function() {
         _this.progressBar.show();
-        _this.progressBar.makeAnimated();
+        _this.progressBar.set(0);
     };
 
     this.onRequestUpdate = function(request) {
@@ -66,8 +66,8 @@ function Prediction(predData) {
             case requestStatus.FINISHED:
                 // success, make a path
                 _this.runningRequests--;
-                _this.paths[request.launchtime] = new Path(request);
-                map.hourlySlider.registerTime(request.launchtime);
+                // _this.paths[request.launchtime] = new Path(request);
+                // map.hourlySlider.registerTime(request.launchtime);
                 break;
             case requestStatus.FAILED:
                 notifications.error('Request failed.');
@@ -75,12 +75,15 @@ function Prediction(predData) {
                 break;
         }
 
-        if (_this.progressBar.isAnimated) {
-            _this.progressBar.makeStatic();
-        }
         _this.progressBar.set(100 * (_this.totalResponsesExpected - _this.runningRequests) / _this.totalResponsesExpected);
 
         if (_this.runningRequests === 0) {
+            for (var j = 0; j < _this.requests.length; j++) {
+                var r = _this.requests[j];
+                _this.paths[r.launchtime] = new Path(r);
+                map.hourlySlider.registerTime(r.launchtime);
+            }
+
             // all responses received
             _this.progressBar.hide();
             //console.log(currentTimeouts);

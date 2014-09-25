@@ -1186,18 +1186,8 @@ function ProgressBar($wrapper) {
     this.$wrapper = $wrapper;
     this.$element = this.$wrapper.children('.progress');
     this.$bar = this.$element.children('.progress-bar');
-    this.isAnimated = false;
     this.show = function() {
         _this.$wrapper.show();
-    };
-    this.makeAnimated = function() {
-        _this.$element.addClass('progress-striped active');
-        _this.set(100);
-        _this.isAnimated = true;
-    };
-    this.makeStatic = function() {
-        _this.$element.removeClass('progress-striped active');
-        _this.isAnimated = false;
     };
     this.set = function(perc) {
         _this.$bar.css('width', perc + '%');
